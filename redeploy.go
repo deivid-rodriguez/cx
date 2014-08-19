@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/cloud66/cloud66"
+	"github.com/cloud66/fayego/fayeclient"
 )
 
 var cmdRedeploy = &Command{
@@ -31,10 +35,29 @@ func runRedeploy(cmd *Command, args []string) {
 	if stack.Environment == "production" && !flagConfirmation {
 		mustConfirm("This is a production stack. Proceed with deployment? [yes/N]", "yes")
 	}
-	result, err := client.RedeployStack(stack.Uid)
+	// result, err := client.RedeployStack(stack.Uid)
+	// if err != nil {
+	// printFatal(err.Error())
+	// } else {
+	// fmt.Println(result.Message)
+	// }
+
+	// end here unless in debugmode
+	if debugMode != true {
+		return
+	}
+
+	fayeClient, err := cloud66.NewFayeClient("localhost:8443/push")
 	if err != nil {
 		printFatal(err.Error())
 	} else {
-		fmt.Println(result.Message)
+		fmt.Println("client created")
 	}
+
+	var successCallback cloud66.MessageCallback = func(clientMessage fayeclient.ClientMessage) {
+		fmt.Println("Faye Callback: ", clientMessage.Data["stack_uid"])
+	}
+
+	cloud66.RegisterCallback(fayeClient, "/**", successCallback)
+	time.Sleep(1 * time.Minute)
 }
