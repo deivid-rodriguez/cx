@@ -267,7 +267,7 @@ func stack(toSdout ...bool) (*cloud66.Stack, error) {
 		for _, stack := range stacks {
 			stackNames = append(stackNames, stack.Name)
 		}
-		idx, err := fuzzyFind(stackNames, flagStackName)
+		idx, err := fuzzyFind(stackNames, flagStackName, false)
 		if err != nil {
 			return nil, err
 		}
